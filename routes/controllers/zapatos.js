@@ -87,12 +87,19 @@ const estadisticas = async (req, res) => {
       { $unwind: "$productos" },
       {
         $group: {
-          producto: "$productos.producto",
+          _id: "$productos.producto",
           cantidad: { $sum: { $toInt: "$productos.cantidad" } }
         }
       },
       { $sort: { cantidad: -1 } },
-      { $limit: 5 }
+      { $limit: 5 },
+      {
+        $project: {
+          _id: 0,
+          producto: "$_id",
+          cantidad: 1
+        }
+      }
     ]).toArray();
 
     // Ventas por mes
