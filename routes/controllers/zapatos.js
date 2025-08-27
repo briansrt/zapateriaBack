@@ -87,7 +87,7 @@ const estadisticas = async (req, res) => {
       { $unwind: "$productos" },
       {
         $group: {
-          _id: "$productos.producto",
+          producto: "$productos.producto",
           cantidad: { $sum: { $toInt: "$productos.cantidad" } }
         }
       },
