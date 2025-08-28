@@ -34,6 +34,17 @@ const getCompras = async (req, res) => {
     }
 }
 
+const getProductos = async (req, res) => {
+  const client = await getClient();
+    try {
+        const productos = await client.db('zapateria').collection('productos').find().toArray();
+        res.json(productos);
+    } catch (error) {
+        console.error('Error al obtener los productos:', error);
+        res.status(500).json({ status: "Error", message: "Internal Server Error" });
+    }
+}
+
 const getTodasCompras = async (req, res) => {
   const client = await getClient();
     try {
@@ -139,4 +150,4 @@ const estadisticas = async (req, res) => {
 };
 
 
-module.exports = { crearCompra, getCompras, getTodasCompras, estadisticas };
+module.exports = { crearCompra, getCompras, getProductos, getTodasCompras, estadisticas };
