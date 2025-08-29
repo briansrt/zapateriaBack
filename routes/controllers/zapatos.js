@@ -5,15 +5,21 @@ const { ObjectId } = require('mongodb');
 
 const crearCompra = async (req, res) => {
   const client = await getClient();
-  const { userId, nombre, productos } = req.body;
+  const { userId, productos, total } = req.body;
 
     try {
         const currentDateTime = moment().tz('America/Bogota').format('YYYY-MM-DD HH:mm:ss');
+        const productosConId = productos.map(p => ({
+          ...p,
+          productoId: new ObjectId(p.productoId)
+        }));
+
+
         await client.db('zapateria').collection('compras').insertOne({ 
-            userId: new ObjectId(userId), 
+            userId: userId,
             fecha: currentDateTime, 
-            productos,
-            nombre,
+            productos: productosConId,
+            total,
         });
         res.json({ status: "Pago realizado", fecha: currentDateTime });
     } catch (error) {
@@ -25,14 +31,47 @@ const crearCompra = async (req, res) => {
 const getCompras = async (req, res) => {
   const client = await getClient();
   const { userId } = req.body;
-    try {
-        const compras = await client.db('zapateria').collection('compras').find({ userId: new ObjectId(userId) }).toArray();
-        res.json(compras);
-    } catch (error) {
-        console.error('Error al obtener las compras:', error);
-        res.status(500).json({ status: "Error", message: "Internal Server Error" });
-    }
-}
+
+  try {
+    const compras = await client
+      .db("zapateria")
+      .collection("compras")
+      .aggregate([
+        { $match: { userId: userId } }, // 👈 aquí como string
+        { $unwind: "$productos" },
+        {
+          $lookup: {
+            from: "productos",
+            localField: "productos.productoId",
+            foreignField: "_id",
+            as: "productoInfo",
+          },
+        },
+        { $unwind: "$productoInfo" },
+        {
+          $project: {
+            _id: 1,
+            userId: 1,
+            total: 1,
+            fecha: 1,
+            "productos.cantidad": 1,
+            "productos.valor": 1,
+            "productoInfo.nombre": 1,
+            "productoInfo.categoria": 1,
+            "productoInfo.marca": 1,
+            "productoInfo.img": 1,
+          },
+        },
+      ])
+      .toArray();
+
+    res.json(compras);
+  } catch (error) {
+    console.error("Error al obtener las compras:", error);
+    res.status(500).json({ status: "Error", message: "Internal Server Error" });
+  }
+};
+
 
 const getProductos = async (req, res) => {
   const client = await getClient();
@@ -82,38 +121,51 @@ const estadisticas = async (req, res) => {
   try {
     const db = client.db("zapateria");
 
-    // Total de ventas
+    // 🟢 Total de ventas (usar el campo total de la compra)
     const totalVentas = await db.collection("compras").aggregate([
-      { $unwind: "$productos" },
       {
         $group: {
           _id: null,
-          total: { $sum: { $toDouble: "$productos.valor" } }
+          total: { $sum: { $toDouble: "$total" } }
         }
       }
     ]).toArray();
 
-    // Productos más vendidos
+    // 🟢 Productos más vendidos (sumar cantidad de cada productoId)
     const productosMasVendidos = await db.collection("compras").aggregate([
       { $unwind: "$productos" },
       {
         $group: {
-          _id: "$productos.producto",
+          _id: "$productos.productoId", // ahora es ObjectId
           cantidad: { $sum: { $toInt: "$productos.cantidad" } }
         }
       },
       { $sort: { cantidad: -1 } },
       { $limit: 5 },
+      // 👇 hacemos lookup a productos para traer info
+      {
+        $lookup: {
+          from: "productos",
+          localField: "_id",
+          foreignField: "_id",
+          as: "productoInfo"
+        }
+      },
+      { $unwind: "$productoInfo" },
       {
         $project: {
           _id: 0,
-          producto: "$_id",
-          cantidad: 1
+          productoId: "$_id",
+          cantidad: 1,
+          nombre: "$productoInfo.nombre",
+          categoria: "$productoInfo.categoria",
+          marca: "$productoInfo.marca",
+          img: "$productoInfo.img"
         }
       }
     ]).toArray();
 
-    // Ventas por mes
+    // 🟢 Ventas por mes (usar campo total en compras, no por producto)
     const ventasPorMes = await db.collection("compras").aggregate([
       {
         $addFields: {
@@ -125,17 +177,29 @@ const estadisticas = async (req, res) => {
           }
         }
       },
-      { $unwind: "$productos" },
       {
         $group: {
           _id: {
             year: { $year: "$fechaConvertida" },
             month: { $month: "$fechaConvertida" }
           },
-          totalVentas: { $sum: { $toDouble: "$productos.valor" } }
+          totalVentas: { $sum: { $toDouble: "$total" } }
         }
       },
-      { $sort: { "_id.year": 1, "_id.month": 1 } }
+      { $sort: { "_id.year": 1, "_id.month": 1 } },
+      {
+        $project: {
+          _id: 0,
+          mes: {
+            $concat: [
+              { $toString: "$_id.year" },
+              "-",
+              { $toString: "$_id.month" }
+            ]
+          },
+          totalVentas: 1
+        }
+      }
     ]).toArray();
 
     res.json({
@@ -148,6 +212,7 @@ const estadisticas = async (req, res) => {
     res.status(500).json({ status: "Error", message: "Internal Server Error" });
   }
 };
+
 
 
 module.exports = { crearCompra, getCompras, getProductos, getTodasCompras, estadisticas };
