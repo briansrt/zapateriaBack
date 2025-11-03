@@ -5,7 +5,7 @@ const doc = {
     title: "API Zapatería",
     description: "Documentación de la API para la gestión de compras y productos.",
   },
-  host: "",
+  host: "https://zapateria-back.vercel.app",
   schemes: ["https"],
 };
 
