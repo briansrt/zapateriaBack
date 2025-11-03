@@ -20,7 +20,7 @@ app.use(cors())
 const CSS_URL = "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.29.1/swagger-ui.min.css";
 
 app.use(
-  '/api/docs',
+  '/api-docs',
   swaggerUi.serve,
   swaggerUi.setup(swaggerFile, {
     customCssUrl: CSS_URL,
@@ -35,4 +35,6 @@ app.get('/', (req, res) => {
     res.send('¡Hola, mundo!');
 });
 
-module.exports = app;
+app.listen(port, ()=>{
+    console.log(`listening at port http://localhost:${port}`);
+})
