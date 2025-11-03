@@ -1,0 +1,213 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "API Zapatería",
+    "description": "Documentación de la API para la gestión de compras y productos.",
+    "version": "1.0.0"
+  },
+  "host": "localhost:4000",
+  "basePath": "/",
+  "schemes": [
+    "http"
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/user/login": {
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "email": {
+                  "example": "any"
+                },
+                "password": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/user/crearUser": {
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "email": {
+                  "example": "any"
+                },
+                "username": {
+                  "example": "any"
+                },
+                "password": {
+                  "example": "any"
+                },
+                "role": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "409": {
+            "description": "Conflict"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/zapatos/crearCompra": {
+      "post": {
+        "description": "Registra una nueva compra realizada por el usuario.",
+        "parameters": [
+          {
+        "name": "body",
+        "in": "body",
+        "required": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "userId": {
+              "type": "string",
+              "example": "68ac8fac891fff7162d7fa07"
+            },
+            "productos": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "productoId": {
+                    "type": "string",
+                    "example": "68afdf9dbfc5dab833538e91"
+                  },
+                  "cantidad": {
+                    "type": "number",
+                    "example": 2
+                  },
+                  "valor": {
+                    "type": "number",
+                    "example": 399000
+                  }
+                }
+              }
+            },
+            "total": {
+              "type": "number",
+              "example": 798000
+            }
+          }
+        }
+      }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/zapatos/getCompras": {
+      "post": {
+        "description": "Obtiene las compras de un usuario específico.",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "userId": {
+                  "example": "68ac8fac891fff7162d7fa07"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/zapatos/getProductos": {
+      "get": {
+        "description": "Obtiene todos los productos disponibles en la zapatería.",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/zapatos/getTodasCompras": {
+      "get": {
+        "description": "Obtiene todas las compras realizadas por todos los usuarios.",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/zapatos/estadisticas": {
+      "get": {
+        "description": "Devuelve estadísticas generales de ventas y productos más vendidos.",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    }
+  }
+}
