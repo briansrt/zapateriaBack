@@ -6,9 +6,6 @@ require('dotenv').config();
 const userRoutes = require('./routes/userRoutes.routes.js');
 const zapatosRoutes = require('./routes/zapatosRoutes.routes.js');
 
-const swaggerUi = require('swagger-ui-express');
-const swaggerFile = require('./swagger-output.json');
-
 const port = process.env.PORT;
 
 const app = express();
@@ -18,6 +15,9 @@ app.use(json())
 
 app.use(cors())
 
+app.get("/swagger-output.json", (req, res) => {
+  res.sendFile(path.join(__dirname, "swagger-output.json"));
+});
 app.get("/api-docs", (req, res) => {
   const html = `
   <!DOCTYPE html>
