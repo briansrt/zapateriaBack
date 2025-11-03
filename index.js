@@ -26,6 +26,4 @@ app.get('/', (req, res) => {
     res.send('¡Hola, mundo!');
 });
 
-app.listen(port, ()=>{
-    console.log(`listening at port http://localhost:${port}`);
-})
+module.exports = app;
