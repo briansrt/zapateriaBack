@@ -1,6 +1,7 @@
 const express = require('express');
 const {urlencoded, json} = require('express');
 const cors = require('cors');
+const path = require("path");
 require('dotenv').config();
 const userRoutes = require('./routes/userRoutes.routes.js');
 const zapatosRoutes = require('./routes/zapatosRoutes.routes.js');
@@ -17,15 +18,31 @@ app.use(json())
 
 app.use(cors())
 
-const CSS_URL = "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.29.1/swagger-ui.min.css";
-
-app.use(
-  '/api-docs',
-  swaggerUi.serve,
-  swaggerUi.setup(swaggerFile, {
-    customCssUrl: CSS_URL,
-  })
-);
+app.get("/api-docs", (req, res) => {
+  const html = `
+  <!DOCTYPE html>
+  <html lang="es">
+    <head>
+      <meta charset="UTF-8" />
+      <title>API Docs</title>
+      <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist/swagger-ui.css" />
+    </head>
+    <body>
+      <div id="swagger-ui"></div>
+      <script src="https://unpkg.com/swagger-ui-dist/swagger-ui-bundle.js"></script>
+      <script src="https://unpkg.com/swagger-ui-dist/swagger-ui-standalone-preset.js"></script>
+      <script>
+        SwaggerUIBundle({
+          url: '/swagger-output.json',
+          dom_id: '#swagger-ui',
+          presets: [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset],
+          layout: 'StandaloneLayout',
+        });
+      </script>
+    </body>
+  </html>`;
+  res.send(html);
+});
 
 
 app.use('/user', userRoutes);
