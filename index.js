@@ -17,7 +17,16 @@ app.use(json())
 
 app.use(cors())
 
-app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerFile));
+const CSS_URL = "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.29.1/swagger-ui.min.css";
+
+app.use(
+  '/api/docs',
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerFile, {
+    customCssUrl: CSS_URL,
+  })
+);
+
 
 app.use('/user', userRoutes);
 app.use('/zapatos', zapatosRoutes);
