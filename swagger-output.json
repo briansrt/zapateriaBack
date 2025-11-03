@@ -5,7 +5,7 @@
     "description": "Documentación de la API para la gestión de compras y productos.",
     "version": "1.0.0"
   },
-  "host": "https://zapateria-back.vercel.app",
+  "host": "zapateria-back.vercel.app",
   "basePath": "/",
   "schemes": [
     "https"
