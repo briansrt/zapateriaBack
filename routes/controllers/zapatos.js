@@ -88,10 +88,16 @@ const getTodasCompras = async (req, res) => {
   const client = await getClient();
     try {
         const compras = await client.db('zapateria').collection('compras').aggregate([
+          {
+            // Convierte el campo userId de string a ObjectId
+            $addFields: {
+              userIdObject: { $toObjectId: "$userId" }
+            }
+          },
             {
                 $lookup: {
                     from: 'users',
-                    localField: 'userId',
+                    localField: 'userIdObject',
                     foreignField: '_id',
                     as: 'userDetails'
                 }
