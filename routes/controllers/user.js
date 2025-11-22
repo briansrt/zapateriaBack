@@ -28,8 +28,8 @@ const login = async (req, res) => {
         if (userFind) {
             res.status(409).json({ message: `El usuario con el correo: ${datos.email} ya está creado` });
         } else {
-            await client.db('zapateria').collection('users').insertOne({ nombre: datos.username, email: datos.email, pass: datos.password, role: datos.role });
-            res.status(201).json({ message: `Usuario creado exitosamente` });
+            const result = await client.db('zapateria').collection('users').insertOne({ nombre: datos.username, email: datos.email, pass: datos.password, role: datos.role });
+            res.status(201).json({ message: `Usuario creado exitosamente`, username: datos.username, userId: result.insertedId });
         }
     } catch (error) {
         console.error('Error al crear el usuario:', error);
